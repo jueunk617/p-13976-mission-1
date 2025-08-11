@@ -113,4 +113,33 @@ class AppTest {
         assertTrue(output.contains(expected))
     }
 
+    @Test
+    @DisplayName("삭제 - 1번 명언 삭제")
+    fun t6() {
+        val input = """
+            등록
+            현재를 사랑하라.
+            작자미상
+            등록
+            과거에 집착하지 마라.
+            작자미상
+            목록
+            삭제?id=1
+            목록
+            종료
+        """.trimIndent()
+
+        val output = runApp(input)
+            .replace("\r\n", "\n")
+
+        assertTrue(output.contains("1번 명언이 삭제되었습니다."))
+
+        val afterSecondList = """
+            번호 / 작가 / 명언
+            ----------------------
+            2 / 작자미상 / 과거에 집착하지 마라.
+        """.trimIndent()
+        assertTrue(output.contains(afterSecondList))
+    }
+
 }

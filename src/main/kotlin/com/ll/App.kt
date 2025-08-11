@@ -2,6 +2,12 @@ package com.ll
 
 import java.util.Scanner
 
+data class WiseSaying(
+    val id: Int,
+    val quote: String,
+    val author: String
+)
+
 class App {
     private val wiseSayings = mutableListOf<WiseSaying>()
     private var lastId = 0
@@ -13,8 +19,9 @@ class App {
         while (true) {
             print("명령) ")
             val cmd = sc.nextLine().trim()
+            val rq = Rq(cmd)
 
-            when (cmd) {
+            when (rq.action) {
                 "종료" -> return
 
                 "등록" -> {
@@ -37,13 +44,21 @@ class App {
                         .sortedByDescending { it.id }
                         .forEach { println("${it.id} / ${it.author} / ${it.quote}") }
                 }
+
+                "삭제" -> {
+                    val id = rq.getParamValueAsInt("id", 0)
+
+                    if (id == 0) {
+                        println("id를 정확히 입력해주세요.")
+                        continue
+                    }
+
+                    val removed = wiseSayings.removeIf { it.id == id }
+                    if (removed) {
+                        println("${id}번 명언이 삭제되었습니다.")
+                    }
+                }
             }
         }
     }
 }
-
-data class WiseSaying(
-    val id: Int,
-    val quote: String,
-    val author: String
-)
