@@ -142,4 +142,53 @@ class AppTest {
         assertTrue(output.contains(afterSecondList))
     }
 
+    @Test
+    @DisplayName("삭제 - 없는 번호를 삭제 => 예외 메시지")
+    fun t7_1() {
+        val input = """
+            등록
+            현재를 사랑하라.
+            작자미상
+            등록
+            과거에 집착하지 마라.
+            작자미상
+            삭제?id=1
+            삭제?id=1
+            종료
+        """.trimIndent()
+
+        val output = runApp(input)
+
+        assertTrue(output.contains("1번 명언이 삭제되었습니다."))
+        assertTrue(output.contains("1번 명언은 존재하지 않습니다."))
+    }
+
+    @Test
+    @DisplayName("삭제 - 삭제 후 번호는 재사용 X")
+    fun t7_2() {
+        val input = """
+            등록
+            현재를 사랑하라.
+            작자미상
+            등록
+            과거에 집착하지 마라.
+            작자미상
+            삭제?id=1
+            등록
+            미래를 준비하라.
+            작자미상
+            종료
+        """.trimIndent()
+
+        val output = runApp(input)
+
+        assertTrue(output.contains("1번 명언이 등록되었습니다."))
+        assertTrue(output.contains("2번 명언이 등록되었습니다."))
+        assertTrue(output.contains("1번 명언이 삭제되었습니다."))
+
+        // 새 명언 추가
+        assertTrue(output.contains("3번 명언이 등록되었습니다."))
+    }
+
+
 }
