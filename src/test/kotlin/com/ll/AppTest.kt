@@ -35,4 +35,20 @@ class AppTest {
         assertTrue(output.contains("== 명언 앱 =="))
     }
 
+    @Test
+    @DisplayName("등록 - 명언, 작가")
+    fun t2() {
+        val input = """
+            등록
+            현재를 사랑하라.
+            작자미상
+            종료
+        """.trimIndent()
+
+        val output = runApp(input)
+
+        assertTrue(output.contains("명언 :"))
+        assertTrue(output.contains("작가 :"))
+    }
+
 }
