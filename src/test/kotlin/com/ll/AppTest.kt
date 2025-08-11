@@ -66,4 +66,23 @@ class AppTest {
         assertTrue(output.contains("1번 명언이 등록되었습니다."))
     }
 
+    @Test
+    @DisplayName("등록 - 번호 증가")
+    fun t4() {
+        val input = """
+            등록
+            현재를 사랑하라.
+            작자미상
+            등록
+            과거에 집착하지 마라.
+            작자미상
+            종료
+        """.trimIndent()
+
+        val output = runApp(input)
+
+        assertTrue(output.contains("1번 명언이 등록되었습니다."))
+        assertTrue(output.contains("2번 명언이 등록되었습니다."))
+    }
+
 }
