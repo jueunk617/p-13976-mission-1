@@ -20,6 +20,8 @@ class AppTest {
             App().run()
 
             return outputStream.toString()
+                .replace("\r\n", "\n")
+                .trim()
         } finally {
             System.setIn(originalIn)
             System.setOut(originalOut)
@@ -83,6 +85,32 @@ class AppTest {
 
         assertTrue(output.contains("1번 명언이 등록되었습니다."))
         assertTrue(output.contains("2번 명언이 등록되었습니다."))
+    }
+
+    @Test
+    @DisplayName("목록 - 최신순 출력")
+    fun t5() {
+        val input = """
+            등록
+            현재를 사랑하라.
+            작자미상
+            등록
+            과거에 집착하지 마라.
+            작자미상
+            목록
+            종료
+        """.trimIndent()
+
+        val output = runApp(input)
+
+        val expected = """
+            번호 / 작가 / 명언
+            ----------------------
+            2 / 작자미상 / 과거에 집착하지 마라.
+            1 / 작자미상 / 현재를 사랑하라.
+        """.trimIndent()
+
+        assertTrue(output.contains(expected))
     }
 
 }
