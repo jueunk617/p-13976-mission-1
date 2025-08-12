@@ -1,16 +1,29 @@
 package com.ll
 
+import java.io.File
 import java.util.Scanner
-
-data class WiseSaying(
-    val id: Int,
-    val quote: String,
-    val author: String
-)
 
 class App {
     private val wiseSayings = mutableListOf<WiseSaying>()
     private var lastId = 0
+
+    private val dataDir = File("db/wiseSaying")
+    private val lastIdFile = File(dataDir, "lastId.txt")
+
+    init {
+        if (!dataDir.exists()) {
+            dataDir.mkdirs()
+        }
+
+        if (lastIdFile.exists()) {
+            lastId = lastIdFile.readText().trim().toIntOrNull() ?: 0
+        }
+
+        dataDir.listFiles { it.extension == "json" }?.forEach { file ->
+            val ws = wiseSayingFromJson(file.readText())
+            wiseSayings.add(ws)
+        }
+    }
 
     fun run() {
         val sc = Scanner(System.`in`)
@@ -18,8 +31,8 @@ class App {
 
         while (true) {
             print("명령) ")
-            val cmd = sc.nextLine().trim()
-            val rq = Rq(cmd)
+            val input = readlnOrNull()!!.trim()
+            val rq = Rq(input)
 
             when (rq.action) {
                 "종료" -> return
@@ -32,7 +45,12 @@ class App {
                     val author = sc.nextLine().trim()
 
                     val id = ++lastId
-                    wiseSayings.add(WiseSaying(id, quote, author))
+                    val wiseSaying = WiseSaying(id, quote, author)
+                    wiseSayings.add(wiseSaying)
+
+                    // 저장
+                    File(dataDir, "$id.json").writeText(wiseSaying.toJson())
+                    lastIdFile.writeText("$lastId")
 
                     println("${id}번 명언이 등록되었습니다.")
                 }
@@ -54,6 +72,8 @@ class App {
 
                     val removed = wiseSayings.removeIf { it.id == id }
                     if (removed) {
+                        // 삭제된 경우 해당 파일도 삭제
+                        File(dataDir, "$id.json").delete()
                         println("${id}번 명언이 삭제되었습니다.")
                     } else {
                         println("${id}번 명언은 존재하지 않습니다.")
@@ -87,6 +107,9 @@ class App {
                         quote = newQuote,
                         author = newAuthor
                     )
+
+                    // 수정된 내용 저장
+                    File(dataDir, "$id.json").writeText(wiseSayings[index].toJson())
                 }
             }
         }
