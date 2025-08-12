@@ -190,5 +190,59 @@ class AppTest {
         assertTrue(output.contains("3번 명언이 등록되었습니다."))
     }
 
+    @Test
+    @DisplayName("수정 - 없는 번호 수정 시 예외처리")
+    fun t8_1() {
+        val input = """
+            등록
+            현재를 사랑하라.
+            작자미상
+            등록
+            과거에 집착하지 마라.
+            작자미상
+            삭제?id=1
+            수정?id=3
+            종료
+        """.trimIndent()
+
+        val output = runApp(input)
+
+        assertTrue(output.contains("1번 명언이 삭제되었습니다."))
+        assertTrue(output.contains("3번 명언은 존재하지 않습니다."))
+    }
+
+    @Test
+    @DisplayName("수정 - 기존 값 표시 후 입력 받아 수정 => 목록 반영")
+    fun t8_2() {
+        val input = """
+            등록
+            현재를 사랑하라.
+            작자미상
+            등록
+            과거에 집착하지 마라.
+            작자미상
+            삭제?id=1
+            수정?id=2
+            현재와 자신을 사랑하라.
+            홍길동
+            목록
+            종료
+        """.trimIndent()
+
+        val output = runApp(input)
+
+        // 기존값
+        assertTrue(output.contains("명언(기존) : 과거에 집착하지 마라."))
+        assertTrue(output.contains("작가(기존) : 작자미상"))
+
+        // 목록 반영
+        val expectedList = """
+            번호 / 작가 / 명언
+            ----------------------
+            2 / 홍길동 / 현재와 자신을 사랑하라.
+        """.trimIndent()
+
+        assertTrue(output.contains(expectedList))
+    }
 
 }

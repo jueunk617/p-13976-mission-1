@@ -59,6 +59,35 @@ class App {
                         println("${id}번 명언은 존재하지 않습니다.")
                     }
                 }
+
+                "수정" -> {
+                    val id = rq.getParamValueAsInt("id", 0)
+                    if (id == 0) {
+                        println("id를 정확히 입력해주세요.")
+                        continue
+                    }
+
+                    val index = wiseSayings.indexOfFirst { it.id == id }
+                    if (index == -1) {
+                        println("${id}번 명언은 존재하지 않습니다.")
+                        continue
+                    }
+
+                    val current = wiseSayings[index]
+
+                    println("명언(기존) : ${current.quote}")
+                    print("명언 : ")
+                    val newQuote = sc.nextLine().trim()
+
+                    println("작가(기존) : ${current.author}")
+                    print("작가 : ")
+                    val newAuthor = sc.nextLine().trim()
+
+                    wiseSayings[index] = current.copy(
+                        quote = newQuote,
+                        author = newAuthor
+                    )
+                }
             }
         }
     }

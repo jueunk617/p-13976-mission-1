@@ -12,7 +12,7 @@ repositories {
 dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.assertj:assertj-core:3.27.3")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0") // JUnit도 명시적으로
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
 }
 
 test {
