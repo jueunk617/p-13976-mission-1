@@ -1,145 +1,37 @@
 package com.ll
 
-import java.io.File
+import com.ll.domain.wiseSaying.controller.WiseSayingController
+import com.ll.domain.wiseSaying.repository.WiseSayingFileRepository
+import com.ll.domain.wiseSaying.service.WiseSayingService
+import com.ll.global.rq.Rq
+
 import java.util.Scanner
 
 class App {
-    private val wiseSayings = mutableListOf<WiseSaying>()
-    private var lastId = 0
-
-    private val dataDir = File("db/wiseSaying")
-    private val lastIdFile = File(dataDir, "lastId.txt")
-    private val dataJsonFile = File(dataDir, "data.json")
-
-    init {
-        if (!dataDir.exists()) {
-            dataDir.mkdirs()
-        }
-
-        if (lastIdFile.exists()) {
-            lastId = lastIdFile.readText().trim().toIntOrNull() ?: 0
-        }
-
-        if (dataJsonFile.exists()) {
-            val dataJson = dataJsonFile.readText()
-            wiseSayings.addAll(wiseSayingListFromJson(dataJson))
-            lastId = wiseSayings.maxOfOrNull { it.id } ?: 0
-        }
-    }
 
     fun run() {
         val sc = Scanner(System.`in`)
+        val repository = WiseSayingFileRepository()
+        val service = WiseSayingService(repository)
+        val controller = WiseSayingController(service, sc)
+
         println("== 명언 앱 ==")
 
         while (true) {
             print("명령) ")
-            val input = readlnOrNull()!!.trim()
-            val rq = Rq(input)
+            val cmd = readlnOrNull() ?: break
+            val rq = Rq(cmd.trim())
 
             when (rq.action) {
-                "종료" -> return
+                "종료" -> break
+                "등록" -> controller.write()
+                "목록" -> controller.list()
+                "삭제" -> controller.delete(rq)
+                "수정" -> controller.modify(rq)
+                "빌드" -> controller.build()
+                "초기화" -> controller.clear() // 테스트용
 
-                "등록" -> {
-                    print("명언 : ")
-                    val quote = sc.nextLine().trim()
-
-                    print("작가 : ")
-                    val author = sc.nextLine().trim()
-
-                    val id = ++lastId
-                    val wiseSaying = WiseSaying(id, quote, author)
-                    wiseSayings.add(wiseSaying)
-
-                    // 저장
-                    File(dataDir, "$id.json").writeText(wiseSaying.toJson())
-                    lastIdFile.writeText("$lastId")
-
-                    println("${id}번 명언이 등록되었습니다.")
-                }
-
-                "목록" -> {
-                    println("번호 / 작가 / 명언")
-                    println("----------------------")
-                    wiseSayings
-                        .sortedByDescending { it.id }
-                        .forEach { println("${it.id} / ${it.author} / ${it.quote}") }
-                }
-
-                "삭제" -> {
-                    val id = rq.getParamValueAsInt("id", 0)
-                    if (id == 0) {
-                        println("id를 정확히 입력해주세요.")
-                        continue
-                    }
-
-                    val removed = wiseSayings.removeIf { it.id == id }
-                    if (removed) {
-                        // 삭제된 경우 해당 파일도 삭제
-                        File(dataDir, "$id.json").delete()
-                        println("${id}번 명언이 삭제되었습니다.")
-                    } else {
-                        println("${id}번 명언은 존재하지 않습니다.")
-                    }
-                }
-
-                "수정" -> {
-                    val id = rq.getParamValueAsInt("id", 0)
-                    if (id == 0) {
-                        println("id를 정확히 입력해주세요.")
-                        continue
-                    }
-
-                    val index = wiseSayings.indexOfFirst { it.id == id }
-                    if (index == -1) {
-                        println("${id}번 명언은 존재하지 않습니다.")
-                        continue
-                    }
-
-                    val current = wiseSayings[index]
-
-                    println("명언(기존) : ${current.quote}")
-                    print("명언 : ")
-                    val newQuote = sc.nextLine().trim()
-
-                    println("작가(기존) : ${current.author}")
-                    print("작가 : ")
-                    val newAuthor = sc.nextLine().trim()
-
-                    wiseSayings[index] = current.copy(
-                        quote = newQuote,
-                        author = newAuthor
-                    )
-
-                    // 수정된 내용 저장
-                    File(dataDir, "$id.json").writeText(wiseSayings[index].toJson())
-                }
-
-                "빌드" -> {
-                    val jsonList = wiseSayings
-                        .sortedBy { it.id } // 저장 순서 기준
-                        .joinToString(separator = ",\n") { it.toJson() }
-
-                    val finalJson = "[\n$jsonList\n]"
-                    dataJsonFile.writeText(finalJson)
-
-                    println("data.json 파일의 내용이 갱신되었습니다.")
-                }
-
-                // 테스트용 데이터 초가화
-                "초기화" -> {
-                    dataDir.listFiles { it.extension == "json" }?.forEach { it.delete() }
-
-                    if (dataJsonFile.exists()) {
-                        dataJsonFile.delete()
-                    }
-
-                    wiseSayings.clear()
-                    lastId = 0
-
-                    lastIdFile.writeText("$lastId")
-
-                    println("데이터가 초기화되었습니다.")
-                }
+                else -> println("알 수 없는 명령어입니다: ${rq.action}")
             }
         }
     }

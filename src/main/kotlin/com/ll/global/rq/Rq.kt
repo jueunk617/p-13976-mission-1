@@ -1,4 +1,4 @@
-package com.ll
+package com.ll.global.rq
 
 class Rq(cmd: String) {
     val action: String
