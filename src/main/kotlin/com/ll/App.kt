@@ -17,10 +17,10 @@ class App {
 
         println("== 명언 앱 ==")
 
-        while (true) {
+        while (sc.hasNextLine()) {
             print("명령) ")
-            val cmd = readlnOrNull() ?: break
-            val rq = Rq(cmd.trim())
+            val cmd = sc.nextLine().trim() ?: break
+            val rq = Rq(cmd)
 
             when (rq.action) {
                 "종료" -> break

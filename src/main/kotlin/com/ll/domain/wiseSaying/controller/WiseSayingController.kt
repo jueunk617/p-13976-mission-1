@@ -71,7 +71,7 @@ class WiseSayingController(
 
     fun build() {
         service.exportAll()
-        println("모든 명언이 data.json 파일로 저장되었습니다.")
+        println("data.json 파일의 내용이 갱신되었습니다.")
     }
 
     fun clear() {
