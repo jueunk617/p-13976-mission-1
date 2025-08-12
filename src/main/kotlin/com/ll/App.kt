@@ -1,8 +1,8 @@
 package com.ll
 
 import com.ll.domain.wiseSaying.controller.WiseSayingController
-import com.ll.domain.wiseSaying.repository.WiseSayingFileRepository
 import com.ll.domain.wiseSaying.service.WiseSayingService
+import com.ll.global.bean.SingletonScope
 import com.ll.global.rq.Rq
 
 import java.util.Scanner
@@ -11,7 +11,7 @@ class App {
 
     fun run() {
         val sc = Scanner(System.`in`)
-        val repository = WiseSayingFileRepository()
+        val repository = SingletonScope.wiseSayingRepository
         val service = WiseSayingService(repository)
         val controller = WiseSayingController(service, sc)
 

@@ -22,9 +22,9 @@ class WiseSayingController(
     fun list(rq: Rq) {
         val keywordType = rq.getParam("keywordType")
         val keyword = rq.getParam("keyword")
+        val page = rq.getParamAsInt("page", 1)
 
-        val items = service.findByKeyword(keywordType, keyword)
-            .sortedByDescending { it.id }
+        val (items, totalPages) = service.findByKeywordWithPaging(keywordType, keyword, page)
 
         if (!keyword.isNullOrBlank()) {
             println("----------------------")
@@ -38,6 +38,16 @@ class WiseSayingController(
         items.forEach {
             println("${it.id} / ${it.author} / ${it.quote}")
         }
+        println("----------------------")
+
+        val pageDisplay = buildString {
+            for (i in 1..totalPages) {
+                if (i == page) append("[$i]") else append("$i")
+                if (i != totalPages) append(" / ")
+            }
+        }
+
+        println("페이지 : $pageDisplay")
     }
 
     fun delete(rq: Rq) {

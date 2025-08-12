@@ -159,4 +159,32 @@ class WiseSayingControllerTest {
         assertThat(result).contains("1 / 작자미상 / 현재를 사랑하라.")
     }
 
+    @Test
+    @DisplayName("페이징 - 기본 페이지")
+    fun t7_1() {
+        TestRunner.makeSampleData(10)
+
+        val result = TestRunner.run("목록")
+
+        assertThat(result).contains("10 / 작자미상 / 명언 10")
+        assertThat(result).contains("6 / 작자미상 / 명언 6")
+        assertThat(result).doesNotContain("5 / 작자미상 / 명언 5")
+
+        assertThat(result).contains("페이지 : [1] / 2")
+    }
+
+    @Test
+    @DisplayName("페이징 - 두 번째 페이지 출력")
+    fun t7_2() {
+        TestRunner.makeSampleData(10)
+
+        val result = TestRunner.run("목록?page=2")
+
+        assertThat(result).contains("5 / 작자미상 / 명언 5")
+        assertThat(result).contains("1 / 작자미상 / 명언 1")
+        assertThat(result).doesNotContain("6 / 작자미상 / 명언 6")
+
+        assertThat(result).contains("페이지 : 1 / [2]")
+    }
+
 }

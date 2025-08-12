@@ -34,14 +34,31 @@ class WiseSayingService(
         repository.clear()
     }
 
-    fun findByKeyword(keywordType: String?, keyword: String?): List<WiseSaying> {
-        return repository.findAll().filter {
+    fun findByKeywordWithPaging(
+        keywordType: String?,
+        keyword: String?,
+        page: Int,
+        itemsPerPage: Int = 5
+    ): Pair<List<WiseSaying>, Int> {
+        val filtered = repository.findAll().filter {
             when (keywordType) {
                 "content" -> keyword == null || it.quote.contains(keyword)
                 "author" -> keyword == null || it.author.contains(keyword)
                 else -> true
             }
+        }.sortedByDescending { it.id }
+
+        val totalPages = (filtered.size + itemsPerPage - 1) / itemsPerPage
+        val startIdx = (page - 1) * itemsPerPage
+        val endIdx = (startIdx + itemsPerPage).coerceAtMost(filtered.size)
+
+        val pagedItems = if (startIdx in filtered.indices) {
+            filtered.subList(startIdx, endIdx)
+        } else {
+            emptyList()
         }
+
+        return pagedItems to totalPages
     }
 
 }
