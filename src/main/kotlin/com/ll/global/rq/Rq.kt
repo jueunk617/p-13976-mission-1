@@ -22,10 +22,10 @@ class Rq(cmd: String) {
         }
     }
 
-    private fun getParamValue(name: String): String? = paramMap[name]
+    fun getParam(name: String): String? = paramMap[name]
 
-    fun getParamValueAsInt(name: String, default: Int): Int {
-        val raw = getParamValue(name) ?: return default
+    fun getParamAsInt(name: String, default: Int): Int {
+        val raw = getParam(name) ?: return default
         return raw.toIntOrNull() ?: default
     }
 }

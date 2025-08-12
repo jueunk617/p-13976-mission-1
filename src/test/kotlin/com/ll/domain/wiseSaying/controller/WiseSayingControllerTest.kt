@@ -121,4 +121,42 @@ class WiseSayingControllerTest {
         assertThat(result).contains("data.json 파일의 내용이 갱신되었습니다.")
     }
 
+    @Test
+    @DisplayName("검색 - keywordType=content, keyword=과거")
+    fun t6_1() {
+        val result = TestRunner.run("""
+            등록
+            현재를 사랑하라.
+            작자미상
+            등록
+            과거에 집착하지 마라.
+            작자미상
+            목록?keywordType=content&keyword=과거
+        """.trimIndent())
+
+        assertThat(result).contains("검색타입 : content")
+        assertThat(result).contains("검색어 : 과거")
+        assertThat(result).contains("2 / 작자미상 / 과거에 집착하지 마라.")
+        assertThat(result).doesNotContain("1 / 작자미상 / 현재를 사랑하라.")
+    }
+
+    @Test
+    @DisplayName("검색 - keywordType=author, keyword=작자")
+    fun t6_2() {
+        val result = TestRunner.run("""
+            등록
+            현재를 사랑하라.
+            작자미상
+            등록
+            과거에 집착하지 마라.
+            작자미상
+            목록?keywordType=author&keyword=작자
+        """.trimIndent())
+
+        assertThat(result).contains("검색타입 : author")
+        assertThat(result).contains("검색어 : 작자")
+        assertThat(result).contains("2 / 작자미상 / 과거에 집착하지 마라.")
+        assertThat(result).contains("1 / 작자미상 / 현재를 사랑하라.")
+    }
+
 }

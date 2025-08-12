@@ -34,4 +34,14 @@ class WiseSayingService(
         repository.clear()
     }
 
+    fun findByKeyword(keywordType: String?, keyword: String?): List<WiseSaying> {
+        return repository.findAll().filter {
+            when (keywordType) {
+                "content" -> keyword == null || it.quote.contains(keyword)
+                "author" -> keyword == null || it.author.contains(keyword)
+                else -> true
+            }
+        }
+    }
+
 }

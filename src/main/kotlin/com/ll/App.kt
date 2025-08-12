@@ -17,15 +17,19 @@ class App {
 
         println("== 명언 앱 ==")
 
-        while (sc.hasNextLine()) {
+        while (true) {
             print("명령) ")
-            val cmd = sc.nextLine().trim() ?: break
+            if (!sc.hasNextLine()) break
+
+            val cmd = sc.nextLine().trim()
+            if (cmd.isEmpty()) continue
+
             val rq = Rq(cmd)
 
             when (rq.action) {
                 "종료" -> break
                 "등록" -> controller.write()
-                "목록" -> controller.list()
+                "목록" -> controller.list(rq)
                 "삭제" -> controller.delete(rq)
                 "수정" -> controller.modify(rq)
                 "빌드" -> controller.build()

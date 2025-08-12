@@ -19,18 +19,29 @@ class WiseSayingController(
         println("${saved.id}번 명언이 등록되었습니다.")
     }
 
-    fun list() {
+    fun list(rq: Rq) {
+        val keywordType = rq.getParam("keywordType")
+        val keyword = rq.getParam("keyword")
+
+        val items = service.findByKeyword(keywordType, keyword)
+            .sortedByDescending { it.id }
+
+        if (!keyword.isNullOrBlank()) {
+            println("----------------------")
+            println("검색타입 : $keywordType")
+            println("검색어 : $keyword")
+        }
+
+        println("----------------------")
         println("번호 / 작가 / 명언")
         println("----------------------")
-        service.findAll()
-            .sortedByDescending { it.id }
-            .forEach {
-                println("${it.id} / ${it.author} / ${it.quote}")
-            }
+        items.forEach {
+            println("${it.id} / ${it.author} / ${it.quote}")
+        }
     }
 
     fun delete(rq: Rq) {
-        val id = rq.getParamValueAsInt("id", 0)
+        val id = rq.getParamAsInt("id", 0)
         if (id == 0) {
             println("id를 정확히 입력해주세요.")
             return
@@ -45,7 +56,7 @@ class WiseSayingController(
     }
 
     fun modify(rq: Rq) {
-        val id = rq.getParamValueAsInt("id", 0)
+        val id = rq.getParamAsInt("id", 0)
         if (id == 0) {
             println("id를 정확히 입력해주세요.")
             return
