@@ -9,6 +9,7 @@ class App {
 
     private val dataDir = File("db/wiseSaying")
     private val lastIdFile = File(dataDir, "lastId.txt")
+    private val dataJsonFile = File(dataDir, "data.json")
 
     init {
         if (!dataDir.exists()) {
@@ -19,9 +20,10 @@ class App {
             lastId = lastIdFile.readText().trim().toIntOrNull() ?: 0
         }
 
-        dataDir.listFiles { it.extension == "json" }?.forEach { file ->
-            val ws = wiseSayingFromJson(file.readText())
-            wiseSayings.add(ws)
+        if (dataJsonFile.exists()) {
+            val dataJson = dataJsonFile.readText()
+            wiseSayings.addAll(wiseSayingListFromJson(dataJson))
+            lastId = wiseSayings.maxOfOrNull { it.id } ?: 0
         }
     }
 
@@ -110,6 +112,33 @@ class App {
 
                     // 수정된 내용 저장
                     File(dataDir, "$id.json").writeText(wiseSayings[index].toJson())
+                }
+
+                "빌드" -> {
+                    val jsonList = wiseSayings
+                        .sortedBy { it.id } // 저장 순서 기준
+                        .joinToString(separator = ",\n") { it.toJson() }
+
+                    val finalJson = "[\n$jsonList\n]"
+                    dataJsonFile.writeText(finalJson)
+
+                    println("data.json 파일의 내용이 갱신되었습니다.")
+                }
+
+                // 테스트용 데이터 초가화
+                "초기화" -> {
+                    dataDir.listFiles { it.extension == "json" }?.forEach { it.delete() }
+
+                    if (dataJsonFile.exists()) {
+                        dataJsonFile.delete()
+                    }
+
+                    wiseSayings.clear()
+                    lastId = 0
+
+                    lastIdFile.writeText("$lastId")
+
+                    println("데이터가 초기화되었습니다.")
                 }
             }
         }

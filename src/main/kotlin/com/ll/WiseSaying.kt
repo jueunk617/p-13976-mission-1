@@ -16,12 +16,26 @@ fun WiseSaying.toJson(): String {
     """.trimIndent()
 }
 
-fun wiseSayingFromJson(json: String): WiseSaying {
-    val lines = json.trim().lines().map { it.trim() }
+fun wiseSayingListFromJson(json: String): List<WiseSaying> {
+    val result = mutableListOf<WiseSaying>()
 
-    val id = lines[1].removePrefix("\"id\": ").removeSuffix(",").toInt()
-    val quote = lines[2].removePrefix("\"quote\": \"").removeSuffix("\",")
-    val author = lines[3].removePrefix("\"author\": \"").removeSuffix("\"")
+    val trimmed = json.trim()
+        .removePrefix("[")
+        .removeSuffix("]")
+        .trim()
 
-    return WiseSaying(id, quote, author)
+    val chunks = trimmed.split("},")
+        .map { it.trim().let { s -> if (!s.endsWith("}")) "$s}" else s } }
+
+    for (chunk in chunks) {
+        val lines = chunk.lines().map { it.trim() }
+
+        val id = lines[1].removePrefix("\"id\": ").removeSuffix(",").toInt()
+        val quote = lines[2].removePrefix("\"quote\": \"").removeSuffix("\",")
+        val author = lines[3].removePrefix("\"author\": \"").removeSuffix("\"")
+
+        result.add(WiseSaying(id, quote, author))
+    }
+
+    return result
 }
